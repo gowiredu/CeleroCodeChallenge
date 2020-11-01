@@ -1,7 +1,6 @@
 package com.example.retrofittutorial;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import retrofit2.Call;
@@ -15,42 +14,32 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
-
-import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
-
-public class MainActivity extends AppCompatActivity {
+public class ReportDetailsActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
-    private CardView cardView;
-    private ArrayList<String> names;
-    private ArrayList<Uri> profileURLS;
-    private CardViewAdapter adapter;
-    private LinkedHashMap<Integer, Integer> idNamePairs;
+    private int passedCustomerId;
+    private ArrayList<String> customerDetails;
+    private CardViewAdapterDetailsActivity adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_report_details);
 
         recyclerView = findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        customerDetails = new ArrayList<>();
 
-        names = new ArrayList<>();
-        profileURLS = new ArrayList<>();
-        idNamePairs = new LinkedHashMap<>();
+        Intent intent = getIntent();
+        passedCustomerId = intent.getIntExtra("customerID", 0);
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://hulet.tech/")
@@ -70,23 +59,25 @@ public class MainActivity extends AppCompatActivity {
 
                 List<Post> posts = response.body(); // data we're getting from web service
 
-                Collections.sort(posts, new Comparator<Post>() {
-                    @Override
-                    public int compare(Post g1, Post g2) {
-                        return g1.getVisitOrder().compareTo(g2.getVisitOrder());
-                    }
-                });
-
                 // get visit order and name and sort according to just the visit order.
-                int count = 0;
                 for(Post post : posts) {
-                    names.add(post.getName());
-                    profileURLS.add(Uri.parse(post.getProfilePicture().getThumbnail()));
-                    idNamePairs.put(count, post.getIdentifier());
-                    count++;
+                    if (post.getIdentifier().equals(passedCustomerId))
+                    {
+                        //Toast.makeText(getApplicationContext(), post.getName(), Toast.LENGTH_SHORT).show();
+                        customerDetails.add(post.getPhoneNumber());
+                        customerDetails.add(post.getServiceReason());
+                        customerDetails.add(String.valueOf(post.getLocation()));
+
+                    }
                 }
 
-                adapter = new CardViewAdapter(getApplicationContext(), names, profileURLS);
+                Log.i("Details: ", Arrays.toString(customerDetails.toArray()));
+
+                // phone number, service reason, problem pictures, location
+                // store all in an arrayList, pass to CardViewAdapter's second constructor
+                //
+
+                adapter = new CardViewAdapterDetailsActivity(getApplicationContext(), customerDetails);
                 recyclerView.setAdapter(adapter);
 
                 recyclerView.addOnItemTouchListener(
@@ -97,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
                                     @Override
                                     public void onItemClick(View view, int position) {
                                         //Toast.makeText(getApplicationContext(), String.valueOf(idNamePairs.get(position)), Toast.LENGTH_SHORT).show();
-                                        startDetailsActivity(idNamePairs.get(position));
+                                        //startDetailsActivity(idNamePairs.get(position));
                                     }
                                     @Override
                                     public void onLongItemClick(View view, int position) {
@@ -112,13 +103,5 @@ public class MainActivity extends AppCompatActivity {
                 Log.i("Failure", t.getMessage());
             }
         });
-    }
-
-
-    private void startDetailsActivity(Integer customerId)
-    {
-        Intent detailsActivityIntent = new Intent(MainActivity.this, ReportDetailsActivity.class);
-        detailsActivityIntent.putExtra("customerID", customerId);
-        startActivity(detailsActivityIntent);
     }
 }
