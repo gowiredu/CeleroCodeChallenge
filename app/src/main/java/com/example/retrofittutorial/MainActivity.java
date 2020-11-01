@@ -20,6 +20,8 @@ import com.google.common.collect.Multimap;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -34,18 +36,15 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<String> names;
     private ArrayList<Uri> profileURLS;
     private CardViewAdapter adapter;
-    private Multimap<Integer, Integer> visitOrder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //textViewResult = findViewById(R.id.text_view_result);
-        recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        recyclerView = findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        visitOrder = ArrayListMultimap.create();
         names = new ArrayList<>();
         profileURLS = new ArrayList<>();
 
@@ -66,34 +65,21 @@ public class MainActivity extends AppCompatActivity {
                 }
                 List<Post> posts = response.body(); // data we're getting from web service
 
+                Collections.sort(posts, new Comparator<Post>() {
+                    @Override
+                    public int compare(Post g1, Post g2) {
+                        return g1.getVisitOrder().compareTo(g2.getVisitOrder());
+                    }
+                });
+
                 // get visit order and name and sort according to just the visit order.
                 for(Post post : posts) {
-                    //String content = "";
-                    //content += "ID: " + post.getId() + "\n";
-                    //content += "User ID: " + post.getUserId() + "\n";
-                    //content += "Title: " + post.getTitle() + "\n";
-                    //content += "Text: " + post.getName() + "\n";
-                    visitOrder.put(post.getVisitOrder(), post.getIdentifier());
-                    //customerInitData.put(post.getVisitOrder(), post.getName(), post.getProfilePicture().getThumbnail());
                     names.add(post.getName());
                     profileURLS.add(Uri.parse(post.getProfilePicture().getThumbnail()));
-                    //customerInitData.put(post.getName(), Uri.parse(post.getProfilePicture().getThumbnail()));
-                    //customerNames.put(post.getVisitOrder(), post.getName());
-                    //content += "Text: " + post.getServiceReason() + "\n";
-
-                    //textViewResult.append(content);
                 }
 
                 adapter = new CardViewAdapter(getApplicationContext(), names, profileURLS);
                 recyclerView.setAdapter(adapter);
-                //System.out.println("URLS: " + profileURLS);
-
-                System.out.println("Visit 1: " + visitOrder.get(1));
-                System.out.println("Visit 2: " + visitOrder.get(2));
-                System.out.println("Visit 3: " + visitOrder.get(3));
-                System.out.println("Visit 4: " + visitOrder.get(4));
-                System.out.println("Visit 5: " + visitOrder.get(5));
-                System.out.println("All Visits: " + visitOrder.values());
             }
 
             @Override
