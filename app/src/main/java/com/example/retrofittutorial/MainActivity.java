@@ -97,7 +97,9 @@ public class MainActivity extends AppCompatActivity {
                                     @Override
                                     public void onItemClick(View view, int position) {
                                         //Toast.makeText(getApplicationContext(), String.valueOf(idNamePairs.get(position)), Toast.LENGTH_SHORT).show();
-                                        startDetailsActivity(idNamePairs.get(position));
+                                        String customerNameToPass = ((TextView) view.findViewById(R.id.customerName)).getText().toString();
+                                        startDetailsActivity(idNamePairs.get(position), customerNameToPass);
+
                                     }
                                     @Override
                                     public void onLongItemClick(View view, int position) {
@@ -115,10 +117,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void startDetailsActivity(Integer customerId)
+    private void startDetailsActivity(Integer customerId, String customerName)
     {
         Intent detailsActivityIntent = new Intent(MainActivity.this, ReportDetailsActivity.class);
         detailsActivityIntent.putExtra("customerID", customerId);
+        detailsActivityIntent.putExtra("customerName", customerName);
         startActivity(detailsActivityIntent);
     }
 }
