@@ -12,14 +12,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
-import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 
 import androidx.recyclerview.widget.RecyclerView;
-import retrofit2.Callback;
 
 public class CardViewAdapter extends RecyclerView.Adapter<CardViewAdapter.ViewHolder> {
 
@@ -28,24 +27,50 @@ public class CardViewAdapter extends RecyclerView.Adapter<CardViewAdapter.ViewHo
     private List<Uri> mProfilePicture;
     private ItemClickListener mClickListener;
 
-    // data is passed into the constructor
     CardViewAdapter(Context context, List<String> customerNames, List<Uri> profilePicture) {
         this.mInflater = LayoutInflater.from(context);
         this.mCustomerNames = customerNames;
         this.mProfilePicture = profilePicture;
     }
 
-    // inflates the row layout from xml when needed
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = mInflater.inflate(R.layout.card_view, parent, false);
         return new ViewHolder(view);
     }
 
-    // binds the data to the TextView in each row
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        Picasso.get().load(mProfilePicture.get(position)).into(holder.customerIcon);
+        //Picasso.get().load(mProfilePicture.get(position)).into(holder.customerIcon);
+
+        Picasso.get()
+                .load(mProfilePicture.get(position))
+                .networkPolicy(NetworkPolicy.OFFLINE)
+                .into(holder.customerIcon, new com.squareup.picasso.Callback() {
+                    @Override
+                    public void onSuccess() {
+
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        Picasso.get()
+                                .load(mProfilePicture.get(position))
+                                .error(R.drawable.ic_no_image)
+                                .into(holder.customerIcon, new Callback() {
+                                    @Override
+                                    public void onSuccess() {
+
+                                    }
+
+                                    @Override
+                                    public void onError(Exception e) {
+                                        Log.v("Picasso","Could not fetch image");
+                                    }
+                                });
+                    }
+                });
+
         holder.customerName.setText(mCustomerNames.get(position));
     }
 
@@ -76,17 +101,14 @@ public class CardViewAdapter extends RecyclerView.Adapter<CardViewAdapter.ViewHo
         }
     }
 
-    // convenience method for getting data at click position
     String getItem(int id) {
         return mCustomerNames.get(id);
     }
 
-    // allows clicks events to be caught
     void setClickListener(ItemClickListener itemClickListener) {
         this.mClickListener = itemClickListener;
     }
 
-    // parent activity will implement this method to respond to click events
     public interface ItemClickListener {
         void onItemClick(View view, int position);
     }

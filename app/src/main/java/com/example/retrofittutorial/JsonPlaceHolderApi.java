@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface JsonPlaceHolderApi {
 
-    @GET("celerocustomers.json") // relative URL
-    Call<List<Post>> getPosts(); // getting back a list of "posts"
+    @GET("celerocustomers.json")
+    Call<List<Post>> getPosts();
 }

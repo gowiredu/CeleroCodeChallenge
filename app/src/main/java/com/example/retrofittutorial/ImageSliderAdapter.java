@@ -3,11 +3,14 @@ package com.example.retrofittutorial;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 import java.io.Serializable;
@@ -36,12 +39,48 @@ public class ImageSliderAdapter extends PagerAdapter {
     public Object instantiateItem(ViewGroup container, int position) {
         ImageView imageView = new ImageView(context);
 
+        /*
         Picasso.get()
                 .load(imageUrls.get(position))
                 .fit()
                 .centerCrop()
                 .error(R.drawable.ic_no_image)
                 .into(imageView);
+
+         */
+
+        Picasso.get()
+                .load(imageUrls.get(position))
+                .fit()
+                .centerCrop()
+                .networkPolicy(NetworkPolicy.OFFLINE)
+                .into(imageView, new Callback() {
+                    @Override
+                    public void onSuccess() {
+
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        Picasso.get()
+                                .load(imageUrls.get(position))
+                                .fit()
+                                .centerCrop()
+                                .error(R.drawable.ic_no_image)
+                                .into(imageView, new Callback() {
+                                    @Override
+                                    public void onSuccess() {
+
+                                    }
+
+                                    @Override
+                                    public void onError(Exception e) {
+                                        Log.v("Picasso","Could not fetch image");
+                                    }
+                                });
+                    }
+                });
+
         container.addView(imageView);
 
         imageView.setOnClickListener(new View.OnClickListener() {

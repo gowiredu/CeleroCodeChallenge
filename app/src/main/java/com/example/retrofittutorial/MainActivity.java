@@ -16,29 +16,22 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
-
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 
 public class MainActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
-    private CardView cardView;
     private ArrayList<String> names;
     private ArrayList<Uri> profileURLS;
     private CardViewAdapter adapter;
     private LinkedHashMap<Integer, Integer> idNamePairs;
+    private SQLiteDBHelper sqLiteDBHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
         names = new ArrayList<>();
         profileURLS = new ArrayList<>();
         idNamePairs = new LinkedHashMap<>();
+        sqLiteDBHelper = new SQLiteDBHelper(this);
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://hulet.tech/")
@@ -68,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
 
-                List<Post> posts = response.body(); // data we're getting from web service
+                List<Post> posts = response.body();
 
                 Collections.sort(posts, new Comparator<Post>() {
                     @Override
@@ -96,7 +90,6 @@ public class MainActivity extends AppCompatActivity {
                                 new RecyclerItemClickListener.ClickListener() {
                                     @Override
                                     public void onItemClick(View view, int position) {
-                                        //Toast.makeText(getApplicationContext(), String.valueOf(idNamePairs.get(position)), Toast.LENGTH_SHORT).show();
                                         String customerNameToPass = ((TextView) view.findViewById(R.id.customerName)).getText().toString();
                                         startDetailsActivity(idNamePairs.get(position), customerNameToPass);
 
