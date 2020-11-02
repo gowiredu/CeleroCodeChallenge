@@ -25,27 +25,23 @@ public class CardViewAdapterDetailsActivity extends RecyclerView.Adapter<CardVie
         this.mCustomerDetails = customerDetails;
     }
 
-    // inflates the row layout from xml when needed
     @Override
     public CardViewAdapterDetailsActivity.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = mInflater.inflate(R.layout.card_view, parent, false);
         return new CardViewAdapterDetailsActivity.ViewHolder(view);
     }
 
-    // binds the data to the TextView in each row
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         holder.customerName.setText(mCustomerDetails.get(position));
     }
 
-    // total number of rows
     @Override
     public int getItemCount() {
         return mCustomerDetails.size();
     }
 
 
-    // stores and recycles views as they are scrolled off screen
     public class ViewHolder extends RecyclerView.ViewHolder {
         TextView customerName;
         ImageView customerIcon;
@@ -58,7 +54,6 @@ public class CardViewAdapterDetailsActivity extends RecyclerView.Adapter<CardVie
         }
     }
 
-    // convenience method for getting data at click position
     String getItem(int id) {
         return mCustomerDetails.get(id);
     }

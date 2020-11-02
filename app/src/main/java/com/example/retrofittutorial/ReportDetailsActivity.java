@@ -11,22 +11,16 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-import android.annotation.TargetApi;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Locale;
 
 public class ReportDetailsActivity extends AppCompatActivity {
 
@@ -36,9 +30,6 @@ public class ReportDetailsActivity extends AppCompatActivity {
     private ArrayList<String> customerDetails;
     private CardViewAdapterDetailsActivity adapter;
     private ArrayList<String> problemPictureUrls;
-    private Double destinationLongitude;
-    private Double destinationLatitude;
-    private ActionBar ab;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,22 +66,17 @@ public class ReportDetailsActivity extends AppCompatActivity {
                     return;
                 }
 
-                List<Post> posts = response.body(); // data we're getting from web service
+                List<Post> posts = response.body();
 
-                // get visit order and name and sort according to just the visit order.
                 for(Post post : posts) {
                     if (post.getIdentifier().equals(passedCustomerId))
                     {
-                        //Toast.makeText(getApplicationContext(), post.getName(), Toast.LENGTH_SHORT).show();
                         customerDetails.add(post.getPhoneNumber());
                         customerDetails.add(post.getServiceReason());
                         customerDetails.add((post.getLocation().getAddress().getStreet()
                                 + ", " + post.getLocation().getAddress().getCity()
                                 + ", " + post.getLocation().getAddress().getState()
                                 + " " + post.getLocation().getAddress().getPostalCode()));
-                        destinationLongitude = post.getLocation().getCoordinate().getLongitude();
-                        destinationLatitude = post.getLocation().getCoordinate().getLatitude();
-                        //Log.i("Details: ", Arrays.toString(post.getProblemPictures().toArray()));
 
                         problemPictureUrls.addAll(post.getProblemPictures());
 
@@ -99,9 +85,6 @@ public class ReportDetailsActivity extends AppCompatActivity {
 
                 Log.i("Details: ", Arrays.toString(customerDetails.toArray()));
 
-                // phone number, service reason, problem pictures, location
-                // store all in an arrayList, pass to CardViewAdapter's second constructor
-                //
 
                 adapter = new CardViewAdapterDetailsActivity(getApplicationContext(), customerDetails);
                 recyclerView.setAdapter(adapter);
@@ -114,8 +97,7 @@ public class ReportDetailsActivity extends AppCompatActivity {
                                 new RecyclerItemClickListener.ClickListener() {
                                     @Override
                                     public void onItemClick(View view, int position) {
-                                        //Toast.makeText(getApplicationContext(), String.valueOf(idNamePairs.get(position)), Toast.LENGTH_SHORT).show();
-                                        //startDetailsActivity(idNamePairs.get(position));
+
                                         if (position == 0)
                                         {
                                             callCustomerPhoneIntent();
@@ -142,22 +124,20 @@ public class ReportDetailsActivity extends AppCompatActivity {
 
     private void setActionBarTitle()
     {
-        ab = getSupportActionBar();
-        ab.setTitle(passedCustomerName);
-        ab.setHomeButtonEnabled(true);
-        ab.setDisplayHomeAsUpEnabled(true);
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setTitle(passedCustomerName);
+        actionBar.setHomeButtonEnabled(true);
+        actionBar.setDisplayHomeAsUpEnabled(true);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem menuItem)
     {
-        switch (menuItem.getItemId()) {
-            case android.R.id.home:
-                onBackPressed();
-                return true;
-            default:
-                return super.onOptionsItemSelected(menuItem);
+        if (menuItem.getItemId() == android.R.id.home) {
+            onBackPressed();
+            return true;
         }
+        return super.onOptionsItemSelected(menuItem);
     }
 
     private void callCustomerPhoneIntent()
